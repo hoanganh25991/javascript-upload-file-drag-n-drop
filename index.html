@@ -1,40 +1,120 @@
 <!DOCTYPE html>
 <head>
-<meta charset="UTF-8" />
-<title>upload file drag&drop</title>
-<link rel="stylesheet" type="text/css" media="all" href="styles.css" />
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+    <meta charset="UTF-8"/>
+    <title>upload file drag&drop</title>
+    <link rel="stylesheet" type="text/css" media="all" href="styles.css"/>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
 </head>
 <body>
 <p>Tutorial: <a href="http://www.sitepoint.com/html5-file-drag-and-drop/">sitepoint</a></p>
-<p>Please give him  (Craig Buckler) a thumbup if you see it useful</p>
-<form id="upload" action="index.html" method="POST" enctype="multipart/form-data">
+<p>Please give him (Craig Buckler) a thumbup if you see it useful</p>
 
 <fieldset>
-<legend>HTML File Upload</legend>
-
-<input type="hidden" id="MAX_FILE_SIZE" name="MAX_FILE_SIZE" value="300000" />
-
-<div>
-	<label for="fileselect">Files to upload:</label>
-	<input type="file" id="fileselect" name="fileselect[]" multiple="multiple" />
-	<div id="filedrag">or drop files here</div>
-</div>
-
-<!-- <div id="submitbutton">
-	<button type="submit">Upload Files</button>
-</div> -->
-
+    <legend>HTML File Upload</legend>
+    <div>
+        <label for="fileselect">Files to upload:</label>
+        <input type="file" id="fileSelect" name="fileselect[]" multiple="multiple"/>
+        <div id="fileDrag">or drop files here</div>
+    </div>
 </fieldset>
-
-</form>
-
-<div id="messages">
-<p>Status Messages</p>
-</div>
 
 <div id="previewImageCont"></div>
 
-<script src="filedrag.js"></script>
+<!--<div id="hoverMe" style="width: 100px; height: 100px; border: 1px solid black"></div>-->
+
+<!--<script src="filedrag.js"></script>-->
+<script>
+    (function($){
+        var preview = function(files){
+            for(var i in files){
+                if(files.hasOwnProperty(i)){
+                    var file = files[i];
+                    var reader = new FileReader();
+                    reader.onload = function(e){
+                        //get image source
+                        var imageSource = e.target.result;
+                        //create new  image uploaded
+                        var image = $("<img>");
+                        //add src, id to image uploaded
+                        //image has real size >>> on "load" get size WORK
+                        image.css({
+                            'max-width': '100%',
+                            height: 100
+                        });
+                        image.attr("src", imageSource);
+                        previewImageCont.append(image);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        };
+        // call initialization file
+        if(window.File && window.FileList && window.FileReader){
+            var fileDrag = $("#" + "fileDrag");
+            var previewImageCont = $("#" + "previewImageCont");
+            /**
+             * not listen on document
+             * only allow user drop inside DRAG&DROP BOX
+             */
+            $(document).on("dragover", function(e){
+                e.stopPropagation();
+                e.preventDefault();
+            });
+            $(document).on("drop", function(e){
+                e.stopPropagation();
+                e.preventDefault();
+            });
+            /**
+             * handle event dragover/drop
+             */
+            fileDrag.on("dragover", function(e){
+                e.stopPropagation();
+                e.preventDefault();
+            });
+            fileDrag.on("drop", function(e){
+                e.stopPropagation();
+                e.preventDefault();
+                var originalE = e.originalEvent;
+                console.log(e);
+                // fetch FileList object
+                var files = originalE.target.files || originalE.dataTransfer.files;
+                preview(files);
+//                // process all File objects
+//                for(var i = 0, file; file = files[i]; i++){
+//                    var reader = new FileReader();
+//                    reader.onload = function(e){
+//                        //get image source
+//                        var imageSource = e.target.result;
+//                        //create new  image uploaded
+//                        var image = $("<img>");
+//                        //add src, id to image uploaded
+//                        //image has real size >>> on "load" get size WORK
+//                        image.css({
+//                            'max-width': '100%',
+//                            height: 100
+//                        });
+//                        image.attr("src", imageSource);
+//                        previewImageCont.append(image);
+//                    };
+//                    reader.readAsDataURL(file);
+//                }
+            });
+        }
+        /**
+         * handle file select
+         * in case user's browser not support drag&drop
+         */
+        var fileSelect = $("#" + "fileSelect");
+        fileSelect.on("change", function(e){
+//           console.log(e);
+//            console.log(e.originalEvent);
+            console.log(fileSelect);
+            console.log(fileSelect.get(0));
+            var files = fileSelect.get(0).files;
+            console.log(files);
+            preview(files);
+        });
+    })(jQuery);
+</script>
 </body>
 </html>
